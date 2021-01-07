@@ -16,7 +16,7 @@ type Player struct {
 
 type PlayerRepository interface {
 	Fetch(ctx context.Context, cursor string, num uint64) (pl []Player, nextCursor string, err error)
-	// GetByID(ctx context.Context, id uint64) (pl Player, err error)
+	GetByID(ctx context.Context, id uint64) (pl Player, err error)
 	Store(ctx context.Context, play *Player) (err error)
 	GetByUsername(ctx context.Context, username string) (pl Player, err error)
 	// SetPosition(ctx context.Context, XPos float64, YPos float64, ZPos float64)
@@ -24,4 +24,5 @@ type PlayerRepository interface {
 }
 
 type PlayerUsecase interface {
+	Login(ctx context.Context, username string, password string) (pl Player, err error)
 }

@@ -40,7 +40,7 @@ func TestFetch(t *testing.T) {
 		AddRow(mockUsers[1].ID, mockUsers[1].Email, mockUsers[1].Password, mockUsers[1].Username,
 			mockUsers[1].UpdatedAt, mockUsers[1].CreatedAt)
 
-	query := "SELECT id,email,password,username , updated_at, created_at FROM User WHERE created_at > \\? ORDER BY created_at LIMIT \\?"
+	query := "SELECT id,email,password,username , updated_at, created_at FROM users WHERE created_at > \\? ORDER BY created_at LIMIT \\?"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
@@ -98,5 +98,37 @@ func TestGetByUsername(t *testing.T) {
 	p := player_postgres.NewPlayerRepository(sqlxDB)
 	player, err := p.GetByUsername(context.TODO(), "aem")
 	assert.NoError(t, err)
+	assert.NotNil(t, player)
+}
+func TestGetByID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+	sqlxDB := sqlx.NewDb(db, "sqlmock")
+	createdAt := time.Now()
+	updated_at := createdAt
+	Rows := sqlmock.NewRows([]string{
+		"id",
+		"username",
+		"email",
+		"password",
+		"created_at",
+		"updated_at",
+	}).AddRow(1, "aem", "arifmaulanaa@gmail.com", "asdasd", createdAt, updated_at)
+	query := "SELECT id,username,email,password,created_at,updated_at FROM users WHERE id=\\?"
+	mock.ExpectQuery(query).WillReturnRows(Rows)
+	p := player_postgres.NewPlayerRepository(sqlxDB)
+	player, err := p.GetByID(context.TODO(), 1)
+	assert.NoError(t, err)
+	assert.Equal(t, player, domain.Player{
+		ID:        1,
+		Username:  "aem",
+		Email:     "arifmaulanaa@gmail.com",
+		Password:  "asdasd",
+		CreatedAt: createdAt,
+		UpdatedAt: updated_at,
+	})
 	assert.NotNil(t, player)
 }

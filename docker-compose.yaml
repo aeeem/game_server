@@ -1,0 +1,31 @@
+version: "2.3"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth_api
+    ports:
+      - 9090:9090
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./config.json:/app/config.json
+
+  db:
+    image: postgres 
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_DB=portofolio
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD="arif maulana000"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

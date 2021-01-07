@@ -46,9 +46,20 @@ func (pr *playerPostgresRepository) fetch(ctx context.Context, query string, arg
 	return
 }
 
+func (pr *playerPostgresRepository) GetByID(ctx context.Context, id uint64) (pl domain.Player, err error) {
+	query := `SELECT id,username,email,password,created_at,updated_at FROM users WHERE id=?`
+	plArr, err := pr.fetch(ctx, query, id)
+	if len(plArr) <= 0 {
+		err = domain.ErrNotfound
+		return
+	}
+	pl = plArr[0]
+	return
+}
+
 //Get all user from databases
 func (pr *playerPostgresRepository) Fetch(ctx context.Context, cursor string, num uint64) (pl []domain.Player, nextCursor string, err error) {
-	query := `SELECT id,email,password,username , updated_at, created_at FROM User WHERE created_at > ? ORDER BY created_at LIMIT ?`
+	query := `SELECT id,email,password,username , updated_at, created_at FROM users WHERE created_at > ? ORDER BY created_at LIMIT ?`
 	decodeCursor, err := player.DecodeCursor(cursor)
 	if err != nil {
 		return
